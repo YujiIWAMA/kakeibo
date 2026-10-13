@@ -1,0 +1,52 @@
+rules_version = '2';
+
+// 夫婦の家計簿 — Firestore セキュリティルール
+// ・家計簿（households）を読み書きできるのは、その家計簿のメンバーだけ
+// ・招待コードを知っている人は、メンバーが2人未満のときに限り、自分自身を追加して参加できる
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isMember(hid) {
+      return signedIn()
+        && request.auth.uid in get(/databases/$(database)/documents/households/$(hid)).data.members;
+    }
+
+    // 各ユーザーが参加している家計簿の記録
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /households/{hid} {
+      allow read: if signedIn() && request.auth.uid in resource.data.members;
+
+      allow create: if signedIn() && request.resource.data.members == [request.auth.uid];
+
+      allow update: if signedIn() && (
+        // メンバーによる更新（名前・費目・メモの変更）。メンバー構成は変えられない
+        (request.auth.uid in resource.data.members
+          && request.resource.data.members == resource.data.members)
+        ||
+        // 招待による参加：自分を1人追加するだけ。最大2人まで
+        (resource.data.members.size() < 2
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+          && request.resource.data.members == resource.data.members.concat([request.auth.uid]))
+      );
+
+      allow delete: if false;
+
+      // 月ごとの支出記録
+      match /months/{ym} {
+        allow read, write: if isMember(hid);
+      }
+
+      // 精算の記録
+      match /settlements/{sid} {
+        allow read, write: if isMember(hid);
+      }
+    }
+  }
+}
