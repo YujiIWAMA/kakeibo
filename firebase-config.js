@@ -9,10 +9,10 @@
 //    firestore.rules（セキュリティルール）で行います。
 // ============================================================
 export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyABwncd3rsc7jQydDFNraqWT82-4K35IlU",
+  authDomain: "kakeibo-499e3.firebaseapp.com",
+  projectId: "kakeibo-499e3",
+  storageBucket: "kakeibo-499e3.firebasestorage.app",
+  messagingSenderId: "785532425945",
+  appId: "1:785532425945:web:120c2e5d5ad1989751d0c8"
 };
