@@ -1,4 +1,3 @@
-
 // 夫婦の家計簿 — 画面とユーザー操作
 import { createStore, isDemo } from './store.js';
 
@@ -18,6 +17,11 @@ function addMonths(ym, n) {
   return `${y}-${pad(m)}`;
 }
 const ymLabel = (ym) => `${ym.slice(0, 4)}年${Number(ym.slice(5, 7))}月`;
+function jpDate(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) return '日付を選択';
+  const d = new Date(`${iso}T00:00:00`);
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${'日月火水木金土'[d.getDay()]}）`;
+}
 const yen = (n) => Math.round(n).toLocaleString('ja-JP');
 const DOW = '日月火水木金土';
 const isYm = (s) => /^\d{4}-(0[1-9]|1[0-2])$/.test(s || '');
@@ -197,8 +201,9 @@ function inputView() {
       <label class="label" for="f-amount">金額</label>
       <div class="amount"><span>¥</span><input id="f-amount" data-field="amount" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="0" value="${esc(f.amount ? yen(Number(f.amount)) : '')}"></div>
     </section>
-    <section class="card" style="padding:4px 16px">
-      <div class="row-between" style="min-height:52px"><label for="f-date">日付</label><input id="f-date" type="date" class="date-input" data-field="date" value="${esc(f.date)}" required></div>
+    <section class="card stack">
+      <label class="label" for="f-date">日付</label>
+      <span class="picker date-picker"><span class="picker-text" data-picker-text="f-date">${jpDate(f.date)}</span>${svg('cal', 20, 1.8)}<input id="f-date" type="date" data-field="date" value="${esc(f.date)}" required></span>
     </section>
     <section class="card stack">
       <div class="row-between"><span class="label">支払った人</span><button type="button" class="link" data-action="toggle-names">${ui.editNames ? '完了' : '名前を変更'}</button></div>
@@ -402,8 +407,8 @@ function settleView() {
   const nMonths = r ? r.months.length : 0;
   return header('夫婦の精算', syncBadge(), iconBtn('open-settings', 'gear', '設定')) + `<main>
     <section class="card" style="padding:4px 16px">
-      <div class="month-row"><label for="s-from">開始月</label><input id="s-from" type="month" class="month-input" data-settle="from" value="${esc(from)}"></div>
-      <div class="month-row"><label for="s-to">終了月</label><input id="s-to" type="month" class="month-input" data-settle="to" value="${esc(to)}"></div>
+      <div class="month-row"><label for="s-from">開始月</label><span class="picker boxed"><span class="picker-text">${ymLabel(from)}</span>${svg('cal', 18, 1.8)}<input id="s-from" type="month" data-settle="from" value="${esc(from)}"></span></div>
+      <div class="month-row"><label for="s-to">終了月</label><span class="picker boxed"><span class="picker-text">${ymLabel(to)}</span>${svg('cal', 18, 1.8)}<input id="s-to" type="month" data-settle="to" value="${esc(to)}"></span></div>
     </section>
     ${invalid ? '<div class="warn-box">開始月が終了月より後になっています。</div>' : `
     ${overlap ? '<div class="warn-box">この期間の一部は、すでに精算済みとして記録されています。</div>' : ''}
@@ -809,6 +814,8 @@ $app.addEventListener('input', (e) => {
       const pos = Math.max(0, shown.length - fromEnd);
       try { el.setSelectionRange(pos, pos); } catch (err) { /* noop */ }
     }
+  } else if (field === 'date') {
+    setFormDate(el);
   } else if (field && field in ui.form) {
     ui.form[field] = el.value;
   }
@@ -836,11 +843,26 @@ $app.addEventListener('change', (e) => {
   } else if (el.dataset.settle) {
     if (isYm(el.value)) {
       if (el.dataset.settle === 'from') ui.settleFrom = el.value; else ui.settleTo = el.value;
+      el.blur();
       render();
     }
   } else if (el.dataset.field === 'date') {
-    ui.form.date = el.value;
+    setFormDate(el);
   }
+});
+
+// 日付：表示（日本語）だけを書き換える。再描画するとピッカーが開き直すことがあるため
+function setFormDate(el) {
+  if (!el.value) { el.value = ui.form.date; return; } // 「クリア」された場合は元に戻す
+  ui.form.date = el.value;
+  const t = $app.querySelector(`[data-picker-text="${el.id}"]`);
+  if (t) t.textContent = jpDate(el.value);
+}
+
+// パソコンのブラウザでは、透明な日付欄をクリックしてもピッカーが開かないことがあるため
+$app.addEventListener('click', (e) => {
+  const inp = e.target.closest('.picker input');
+  if (inp && typeof inp.showPicker === 'function') { try { inp.showPicker(); } catch (err) { /* noop */ } }
 });
 
 window.addEventListener('online', () => { ui.online = true; render(); });
