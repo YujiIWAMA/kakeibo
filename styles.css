@@ -97,6 +97,13 @@ h2 { font-size: 15px; margin: 0; font-weight: 700; }
 .field label { font-size: 12px; font-weight: 700; }
 .memo-row { display: flex; gap: 8px; }
 .btn-small { flex: none; height: 46px; padding: 0 12px; border-radius: 10px; border: 1.5px solid var(--green); background: #fff; color: var(--green-d); font-size: 13px; font-weight: 700; }
+/* 日付・月の選択：日本語の表示の上に、透明な入力欄を重ねる */
+.picker { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 16px; color: var(--ink); white-space: nowrap; }
+.picker svg { color: var(--green); flex: none; }
+.picker.date-picker { display: flex; justify-content: space-between; height: 48px; border: 1.5px solid var(--line-2); border-radius: 12px; padding: 0 14px; font-size: 17px; font-weight: 700; }
+.picker.boxed { border: 1.5px solid var(--line-2); border-radius: 10px; padding: 0 12px; color: var(--green-d); font-weight: 500; }
+.picker input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; margin: 0; padding: 0; font-size: 16px; cursor: pointer; -webkit-appearance: none; appearance: none; }
+.picker:focus-within { box-shadow: 0 0 0 3px rgba(23, 132, 90, .2); border-radius: 10px; }
 .date-input { height: 44px; border: 0; background: transparent; font-size: 16px; color: var(--ink); text-align: right; min-width: 150px; }
 
 .btn-primary { height: 52px; border: 0; border-radius: 14px; background: var(--green); color: #fff; font-size: 17px; font-weight: 700; width: 100%; letter-spacing: .06em; }
