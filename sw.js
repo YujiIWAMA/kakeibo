@@ -1,6 +1,6 @@
 // オフラインでも起動できるようにするための Service Worker
 // アプリを更新したら CACHE の番号を上げてください。
-const CACHE = 'kakeibo-v1';
+const CACHE = 'kakeibo-v2';
 const SHELL = [
   './', './index.html', './styles.css', './app.js', './store.js', './firebase-config.js',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
