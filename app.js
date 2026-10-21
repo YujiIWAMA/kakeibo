@@ -1,3 +1,4 @@
+
 // 夫婦の家計簿 — 画面とユーザー操作
 import { createStore, isDemo } from './store.js';
 
@@ -196,6 +197,9 @@ function inputView() {
       <label class="label" for="f-amount">金額</label>
       <div class="amount"><span>¥</span><input id="f-amount" data-field="amount" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="0" value="${esc(f.amount ? yen(Number(f.amount)) : '')}"></div>
     </section>
+    <section class="card" style="padding:4px 16px">
+      <div class="row-between" style="min-height:52px"><label for="f-date">日付</label><input id="f-date" type="date" class="date-input" data-field="date" value="${esc(f.date)}" required></div>
+    </section>
     <section class="card stack">
       <div class="row-between"><span class="label">支払った人</span><button type="button" class="link" data-action="toggle-names">${ui.editNames ? '完了' : '名前を変更'}</button></div>
       ${ui.editNames ? namesEditor('ne') : `<div class="grid2">${[0, 1].map((i) =>
@@ -215,7 +219,6 @@ function inputView() {
       </div>
       ${ms.length ? `<div class="label">よく使う項目から選ぶ</div><div class="pills">${ms.map((m) =>
         `<button type="button" class="pill ${f.memo === m ? 'on' : ''}" data-action="memo" data-v="${esc(m)}">${esc(m)}</button>`).join('')}</div>` : ''}
-      <div class="row-between line-top"><label for="f-date">日付</label><input id="f-date" type="date" class="date-input" data-field="date" value="${esc(f.date)}" required></div>
     </section>
     <button type="button" class="btn-primary" data-action="save">${editing ? '変更を保存' : '保存'}</button>
     ${editing ? '<button type="button" class="btn-danger" data-action="delete">この記録を削除</button>' : ''}
